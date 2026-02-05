@@ -7,7 +7,7 @@ import { DayPlan } from "@/components/ItineraryDisplay";
 import { Budget } from "@/components/BudgetBreakdown";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
-import { MapLoadingScreen } from "@/components/MapLoadingScreen";
+// import { MapLoadingScreen } from "@/components/MapLoadingScreen";
 import { RegenerateModal } from "@/components/RegenerateModal";
 import { Activity } from "@/components/ItineraryDisplay";
 import { ManualEditModal } from "@/components/ManualEditModal";
@@ -21,6 +21,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { LoadingScreen } from "@/components/LoadingScreen";
 
 const parseCost = (costStr: string | number | undefined | null): number => {
     if (costStr === null || costStr === undefined) return 0;
@@ -44,6 +45,8 @@ const parseCost = (costStr: string | number | undefined | null): number => {
 export default function PreviewPage() {
     const [itinerary, setItinerary] = useState<DayPlan[] | null>(null);
     const [budget, setBudget] = useState<Budget | null>(null);
+    const [weather, setWeather] = useState<{ summary: string; temperature: string } | null>(null);
+    const [hotels, setHotels] = useState<Array<{ name: string; address: string; description: string; price_per_night: string; currency: string; booking_url_query: string; category: string; }>>([]);
     const [tripData, setTripData] = useState<TripData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
@@ -73,6 +76,8 @@ export default function PreviewPage() {
                 const parsed = JSON.parse(storedData);
                 setItinerary(parsed.itinerary);
                 setBudget(parsed.budget);
+                setWeather(parsed.weather);
+                setHotels(parsed.hotels || []); // Handle array
                 setTripData(parsed.formData);
             } catch (e) {
                 console.error("Failed to parse trip data", e);
@@ -136,12 +141,8 @@ export default function PreviewPage() {
 
         const updatedItinerary = [...itinerary];
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (updatedItinerary[dayIndex].activities as any)[period] = {
-            name: "Free Time",
-            description: "Enjoy some leisure time to explore on your own.",
-            time: currentActivity.time,
-            cost: "Free"
-        };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (updatedItinerary[dayIndex].activities as any)[period] = null;
         setItinerary(updatedItinerary);
 
         // Update Budget
@@ -312,7 +313,7 @@ export default function PreviewPage() {
         }
     };
 
-    if (isLoading) return <MapLoadingScreen />;
+    if (isLoading) return <LoadingScreen />;
 
     if (!itinerary || !tripData || !budget) return null;
 
@@ -326,6 +327,8 @@ export default function PreviewPage() {
                 isSaving={isSaving}
                 isPreview={true}
                 onActivityUpdate={handleActivityUpdate}
+                weather={weather || undefined}
+                hotels={hotels}
             />
 
             <RegenerateModal
@@ -348,7 +351,7 @@ export default function PreviewPage() {
                     <AlertDialogHeader>
                         <AlertDialogTitle className="text-xl font-bold text-emerald-950">Remove Activity?</AlertDialogTitle>
                         <AlertDialogDescription className="text-emerald-800/70">
-                            This will replace the activity with a &quot;Free Time&quot; slot. You can regenerate it later if you change your mind.
+                            This will delete the activity completely. Are you sure you want to delete?
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

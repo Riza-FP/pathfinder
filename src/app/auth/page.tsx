@@ -71,7 +71,7 @@ export default function AuthPage() {
 
                 <div className="relative z-10">
                     <div className="flex items-center gap-2 font-bold text-xl">
-                        <Plane className="w-6 h-6 text-orange-400" />
+                     <Plane className="w-6 h-6 text-orange-400" />
                         <span>Pathfinder</span>
                     </div>
                 </div>
@@ -86,7 +86,7 @@ export default function AuthPage() {
                 </div>
 
                 <div className="relative z-10 text-sm text-emerald-200/60">
-                    &copy; 2024 Pathfinder Inc.
+                    &copy; 2024 Pathfinder
                 </div>
             </div>
 

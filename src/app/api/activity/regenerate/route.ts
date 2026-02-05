@@ -32,7 +32,7 @@ export async function POST(req: Request) {
       - Name
       - Description
       - Time (Keep it: "${currentActivity.time}")
-      - Cost (Estimated in IDR (Indonesian Rupiah), e.g. "Rp 50.000" or "Free")
+      - Cost (Estimated in IDR, e.g. "Rp 50.000" or "Free". IMPORTANT: Single value ONLY, NO ranges like "20k-50k")
     `;
 
         const result = await generateObject({

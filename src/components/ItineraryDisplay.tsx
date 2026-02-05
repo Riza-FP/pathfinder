@@ -15,11 +15,11 @@ export interface DayPlan {
     day: number;
     date: string;
     activities: {
-        morning: Activity;
-        lunch: Activity;
-        afternoon: Activity;
-        dinner: Activity;
-        evening: Activity;
+        morning?: Activity | null;
+        lunch?: Activity | null;
+        afternoon?: Activity | null;
+        dinner?: Activity | null;
+        evening?: Activity | null;
     };
 }
 
@@ -133,7 +133,7 @@ function ActivityItem({
     onAction
 }: {
     period: string,
-    activity: Activity,
+    activity: Activity | null | undefined,
     color: string,
     bgColor: string,
     icon: React.ReactNode,

@@ -1,24 +1,58 @@
+"use client";
+
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Map as MapIcon, Plane, Wallet, ArrowRight, Star, Palmtree, Landmark, Building2, Flower2, Compass, Ticket } from "lucide-react";
 import { UserNav } from "@/components/UserNav";
 
+const heroImages = [
+  { src: "/hero-beach-real.png", alt: "Tropical Beach" },
+  { src: "/hero-mountain.png", alt: "Mountain Lake" },
+  { src: "/hero-kyoto.png", alt: "Kyoto Street" },
+  { src: "/hero-santorini.png", alt: "Santorini View" },
+];
+
 export default function Home() {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
 
       {/* 1. Hero Section */}
-      {/* 1. Hero Section (Redesigned Split Layout) */}
       <header className="relative w-full overflow-hidden bg-emerald-50/50 pt-24 pb-16 md:pt-32 md:pb-24">
+        {/* Logo (Absolute top left) */}
+        <div className="absolute top-6 left-6 z-20">
+          <Link href="/" className="flex items-center gap-2 font-bold text-xl text-emerald-950 hover:opacity-80 transition-opacity">
+            <Plane className="w-6 h-6 text-orange-500" />
+            <span>Pathfinder</span>
+          </Link>
+        </div>
+
         {/* Navigation (Absolute top right) */}
         <div className="absolute top-6 right-6 z-20">
           <UserNav />
         </div>
 
         {/* Background Decor */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-emerald-100/40 rounded-full blur-3xl -z-10 opacity-60" />
+        <div className="absolute inset-0 z-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/hero-bg-clouds.png"
+            alt=""
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-emerald-50/40 to-emerald-50/90" />
+        </div>
 
-        <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
           <div className="space-y-8 animate-in slide-in-from-bottom-8 duration-700 fade-in">
 
@@ -43,13 +77,17 @@ export default function Home() {
           </div>
 
           {/* Right Visual */}
-          <div className="relative animate-in slide-in-from-right-8 duration-1000 delay-200 fade-in flex justify-center md:justify-end">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/hero-premium-vector.png"
-              alt="Travel Planning Vector"
-              className="w-full max-w-lg drop-shadow-2xl hover:scale-105 transition-transform duration-700 ease-in-out"
-            />
+          <div className="relative w-full max-w-lg aspect-[4/3] flex justify-center md:justify-end">
+            {heroImages.map((img, index) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={img.src}
+                src={img.src}
+                alt={img.alt}
+                className={`absolute inset-0 w-full h-full object-cover rounded-3xl shadow-2xl shadow-emerald-900/20 transition-all duration-1000 ease-in-out ${index === currentImageIndex ? "opacity-100 scale-100" : "opacity-0 scale-105"
+                  }`}
+              />
+            ))}
           </div>
         </div>
       </header>
@@ -67,7 +105,7 @@ export default function Home() {
               <span className="text-emerald-600 font-bold tracking-wider uppercase text-sm">Why Choose Us</span>
               <h2 className="text-4xl font-black text-emerald-950 mt-2 mb-4">Travel Planning, <br />Reimagined.</h2>
               <p className="text-lg text-emerald-900/70 leading-relaxed">
-                Say goodbye to generic lists and messy spreadsheets. Pathfinder uses advanced AI to craft trips that feel like they were planned by a local expert just for you.
+                Say goodbye to generic lists and messy spreadsheets. Pathfinder crafts trips that feel like they were planned by a local expert just for you.
               </p>
             </div>
 
@@ -94,13 +132,11 @@ export default function Home() {
 
       {/* 3. How It Works */}
       <section className="relative py-24 px-6 bg-emerald-50/50 dark:bg-zinc-900/50 overflow-hidden">
-
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold tracking-tight mb-4 text-emerald-950">How It Works</h2>
             <p className="text-emerald-800/70">Three simple steps to your next adventure.</p>
           </div>
-          {/* ... existing grid ... */}
 
           <div className="grid md:grid-cols-3 gap-12">
             <FeatureCard

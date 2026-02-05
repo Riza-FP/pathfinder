@@ -242,7 +242,7 @@ export function TripInputForm({ onSubmit, isLoading }: TripInputFormProps) {
                 name="budget"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-emerald-900 font-bold ml-1">Budget (IDR)</FormLabel>
+                    <FormLabel className="text-emerald-900 font-bold ml-1">Total Budget (IDR)</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-900/40 font-medium">Rp</span>
@@ -326,7 +326,7 @@ export function TripInputForm({ onSubmit, isLoading }: TripInputFormProps) {
 
             <Button type="submit" className="w-full py-8 text-xl font-bold rounded-full shadow-xl shadow-orange-500/20 bg-orange-500 hover:bg-orange-600 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-6 w-6 animate-spin" />}
-              <span className="text-white">{isLoading ? "Crafting your Journey..." : "Generate My Itinerary ✨"}</span>
+              <span className="text-white">{isLoading ? "Crafting your Journey..." : "Generate My Itinerary"}</span>
             </Button>
           </form>
         </Form>

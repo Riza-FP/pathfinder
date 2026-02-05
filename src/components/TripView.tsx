@@ -20,7 +20,7 @@ import { BudgetBreakdown, Budget } from "@/components/BudgetBreakdown";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { toast } from "sonner";
-import { ArrowLeft, Save, Download, Calendar, Users, Wallet, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, Download, Calendar, Users, Wallet, Loader2, CloudSun } from "lucide-react";
 
 export interface TripData {
     destination: string;
@@ -40,9 +40,22 @@ interface TripViewProps {
     isSaving?: boolean;
     isPreview?: boolean;
     onActivityUpdate?: (dayIndex: number, period: string, action: 'regenerate' | 'edit' | 'remove', data?: any) => void;
+    weather?: {
+        summary: string;
+        temperature: string;
+    };
+    hotels?: Array<{
+        name: string;
+        address: string;
+        description: string;
+        price_per_night: string;
+        currency: string;
+        booking_url_query: string;
+        category: string;
+    }>;
 }
 
-export function TripView({ tripData, itinerary, budgetBreakdown, onSave, isSaved = false, isSaving = false, isPreview = false, onActivityUpdate }: TripViewProps) {
+export function TripView({ tripData, itinerary, budgetBreakdown, onSave, isSaved = false, isSaving = false, isPreview = false, onActivityUpdate, weather, hotels }: TripViewProps) {
     const router = useRouter();
     const [isAlertOpen, setIsAlertOpen] = useState(false);
 
@@ -202,7 +215,19 @@ export function TripView({ tripData, itinerary, budgetBreakdown, onSave, isSaved
                         <span className="flex items-center gap-2 bg-white/60 px-4 py-2 rounded-full shadow-sm ring-1 ring-emerald-50">
                             <Wallet className="w-5 h-5 text-emerald-600" /> {tripData.budget.toLocaleString()} {tripData.currency || "IDR"}
                         </span>
+                        {weather && (
+                            <span className="flex items-center gap-2 bg-white/60 px-4 py-2 rounded-full shadow-sm ring-1 ring-emerald-50" title={weather.summary}>
+                                <CloudSun className="w-5 h-5 text-amber-500" /> {weather.temperature}
+                            </span>
+                        )}
                     </div>
+                    {weather && (
+                        <div className="bg-emerald-50/50 p-4 rounded-xl border border-emerald-100 max-w-2xl mx-auto">
+                            <p className="text-emerald-800/80 text-sm italic">
+                                "{weather.summary}"
+                            </p>
+                        </div>
+                    )}
                 </div>
 
                 {/* Content */}
@@ -210,8 +235,58 @@ export function TripView({ tripData, itinerary, budgetBreakdown, onSave, isSaved
                     <div className="lg:col-span-2 space-y-8">
                         <ItineraryDisplay days={itinerary} onActivityUpdate={onActivityUpdate} />
                     </div>
-                    <div className="lg:col-span-1 lg:sticky lg:top-8">
-                        <BudgetBreakdown budget={budgetBreakdown} />
+                    <div className="lg:col-span-1 lg:sticky lg:top-8 space-y-8">
+                        {/* Hotels Section */}
+                        {hotels && hotels.length > 0 && (
+                            <div className="bg-white rounded-[2rem] shadow-xl shadow-emerald-900/5 overflow-hidden border-0">
+                                <div className="bg-indigo-50 p-6 border-b border-indigo-100">
+                                    <h3 className="text-xl font-bold text-indigo-900 flex items-center gap-2">
+                                        <span className="text-2xl">🏨</span> Where to Stay
+                                    </h3>
+                                </div>
+                                <div className="divide-y divide-emerald-50">
+                                    {hotels.map((hotel, index) => (
+                                        <div key={index} className="p-6 space-y-4 hover:bg-emerald-50/30 transition-colors">
+                                            <div className="flex justify-between items-start gap-4">
+                                                <div>
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <h4 className="text-base font-bold text-emerald-950 leading-tight">{hotel.name}</h4>
+                                                    </div>
+                                                    <span className="text-[10px] font-extrabold uppercase tracking-widest px-2 py-1 bg-indigo-100 text-indigo-700 rounded-lg inline-block mb-1">
+                                                        {hotel.category}
+                                                    </span>
+                                                    <p className="text-xs text-emerald-800/60">{hotel.address}</p>
+                                                </div>
+                                            </div>
+
+                                            <p className="text-xs text-emerald-800/80 leading-relaxed line-clamp-3">
+                                                {hotel.description}
+                                            </p>
+
+                                            <div className="flex items-center justify-between pt-2">
+                                                <span className="font-bold text-emerald-950 text-sm">
+                                                    {hotel.price_per_night} <span className="text-[10px] text-emerald-900/40 font-normal">/ night</span>
+                                                </span>
+                                                <Button size="sm" className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold h-9 text-xs shadow-lg shadow-blue-500/20" asChild>
+                                                    <a
+                                                        href={`https://www.booking.com/searchresults.html?ss=${encodeURIComponent(hotel.booking_url_query)}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                    >
+                                                        Book
+                                                    </a>
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <p className="p-4 bg-emerald-50/50 text-[10px] text-center text-emerald-900/30 border-t border-emerald-50">
+                                    *Prices are estimates. We check external sites.
+                                </p>
+                            </div>
+                        )}
+
+                        <BudgetBreakdown budget={budgetBreakdown} budgetLimit={tripData.budget} />
                     </div>
                 </div>
             </div>

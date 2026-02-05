@@ -46,24 +46,24 @@ export function LoadingScreen() {
                 <div className="absolute top-8 -right-16 text-muted-foreground/30 animate-[cloud-pass_4s_linear_infinite_reverse]">☁️</div>
 
                 {/* Airplane */}
-                <div className="relative z-10 p-4 bg-primary/10 rounded-full animate-bounce">
-                    <Plane className="w-12 h-12 text-primary transform -rotate-45" />
+                <div className="relative z-10 p-4 bg-orange-100 rounded-full animate-bounce">
+                    <Plane className="w-12 h-12 text-orange-500 transform -rotate-45" />
                 </div>
             </div>
 
             <div className="text-center space-y-2">
-                <h3 className="text-xl font-bold text-primary">
+                <h3 className="text-xl font-bold text-orange-600">
                     Planning your trip
                 </h3>
-                <p className="text-muted-foreground w-64">
+                <p className="text-orange-900/60 w-64">
                     {LOADING_STEPS[currentStep].text}
                 </p>
             </div>
 
             {/* Progress Bar */}
-            <div className="w-64 h-2 bg-muted rounded-full mt-6 overflow-hidden">
+            <div className="w-64 h-2 bg-orange-100 rounded-full mt-6 overflow-hidden">
                 <div
-                    className="h-full bg-primary transition-all duration-1000 ease-linear"
+                    className="h-full bg-orange-500 transition-all duration-1000 ease-linear"
                     style={{ width: `${progress}%` }}
                 />
             </div>
