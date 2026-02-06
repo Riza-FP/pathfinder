@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { LoadingScreen } from "@/components/LoadingScreen";
 
+
 const parseCost = (costStr: string | number | undefined | null): number => {
     if (costStr === null || costStr === undefined) return 0;
     const str = String(costStr);
@@ -52,10 +53,15 @@ export default function PreviewPage() {
     const [isSaving, setIsSaving] = useState(false);
 
     // Regeneration State
-    const [isRegenerating, setIsRegenerating] = useState(false);
+    const [isRegeneratingTrip, setIsRegeneratingTrip] = useState(false); // For full trip regeneration
+    const [isFetchingAlternatives, setIsFetchingAlternatives] = useState(false); // For single activity regeneration
     const [regenerateModalOpen, setRegenerateModalOpen] = useState(false);
     const [alternatives, setAlternatives] = useState<Activity[]>([]);
     const [selectedContext, setSelectedContext] = useState<{ dayIndex: number, period: string } | null>(null);
+
+    // Full Trip Regeneration Limits
+    const [regenerationCount, setRegenerationCount] = useState(0);
+    const MAX_REGENERATIONS = 3;
 
     // Manual Edit State
     const [manualEditModalOpen, setManualEditModalOpen] = useState(false);
@@ -79,6 +85,7 @@ export default function PreviewPage() {
                 setWeather(parsed.weather);
                 setHotels(parsed.hotels || []); // Handle array
                 setTripData(parsed.formData);
+                setRegenerationCount(parsed.regenerationCount || 0); // Load count
             } catch (e) {
                 console.error("Failed to parse trip data", e);
                 toast.error("Invalid trip data.");
@@ -89,6 +96,51 @@ export default function PreviewPage() {
         }
         setIsLoading(false);
     }, [router]);
+
+    // ... (rest of methods)
+
+    const handleFullRegeneration = async () => {
+        if (!tripData || regenerationCount >= MAX_REGENERATIONS) return;
+
+        setIsRegeneratingTrip(true);
+        try {
+            const response = await fetch("/api/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(tripData), // Use existing trip parameters
+            });
+
+            if (!response.ok) throw new Error("Failed to regenerate itinerary");
+
+            const result = await response.json();
+
+            // Update State
+            setItinerary(result.itinerary);
+            setBudget(result.budget);
+            setWeather(result.weather);
+            setHotels(result.hotels);
+
+            const newCount = regenerationCount + 1;
+            setRegenerationCount(newCount);
+
+            // Update Local Storage
+            localStorage.setItem("currentTrip", JSON.stringify({
+                itinerary: result.itinerary,
+                budget: result.budget,
+                weather: result.weather,
+                hotels: result.hotels,
+                formData: tripData,
+                regenerationCount: newCount
+            }));
+
+            toast.success("Itinerary regenerated successfully!");
+        } catch (error) {
+            console.error("Regeneration failed:", error);
+            toast.error("Failed to regenerate trip. Please try again.");
+        } finally {
+            setIsRegeneratingTrip(false);
+        }
+    };
 
     const handleSave = async () => {
         if (!itinerary || !budget || !tripData) return;
@@ -174,7 +226,7 @@ export default function PreviewPage() {
         }
 
         if (action === 'regenerate') {
-            setIsRegenerating(true);
+            setIsFetchingAlternatives(true);
             setRegenerateModalOpen(true);
             setSelectedContext({ dayIndex, period });
             setAlternatives([]); // clear previous
@@ -200,7 +252,7 @@ export default function PreviewPage() {
                 toast.error("Failed to regenerate activity.");
                 setRegenerateModalOpen(false);
             } finally {
-                setIsRegenerating(false);
+                setIsFetchingAlternatives(false);
             }
         }
 
@@ -219,8 +271,6 @@ export default function PreviewPage() {
         const digits = str.replace(/\D/g, "");
         return parseInt(digits) || 0;
     };
-
-    // ...
 
     const handleManualEditSave = (updatedActivity: Activity) => {
         try {
@@ -315,7 +365,19 @@ export default function PreviewPage() {
 
     if (isLoading) return <LoadingScreen />;
 
-    if (!itinerary || !tripData || !budget) return null;
+    if (isRegeneratingTrip) return (
+        <LoadingScreen
+            title="Regenerating your trip"
+            steps={[
+                { text: "Discarding previous plan...", duration: 2000 },
+                { text: "Rethinking your itinerary...", duration: 2500 },
+                { text: "Finding new hidden gems...", duration: 2500 },
+                { text: "Polishing the details...", duration: 2000 },
+            ]}
+        />
+    );
+
+    if (!tripData || !itinerary || !budget) return null;
 
     return (
         <>
@@ -329,12 +391,14 @@ export default function PreviewPage() {
                 onActivityUpdate={handleActivityUpdate}
                 weather={weather || undefined}
                 hotels={hotels}
+                onRegenerate={handleFullRegeneration}
+                regenerationCount={regenerationCount}
             />
 
             <RegenerateModal
                 isOpen={regenerateModalOpen}
                 onClose={() => setRegenerateModalOpen(false)}
-                isLoading={isRegenerating}
+                isLoading={isFetchingAlternatives}
                 alternatives={alternatives}
                 onSelect={handleAlternativeSelect}
             />

@@ -3,39 +3,45 @@
 import { useEffect, useState } from "react";
 import { Plane } from "lucide-react";
 
-const LOADING_STEPS = [
+const DEFAULT_STEPS = [
     { text: "Searching best attractions...", duration: 3000 },
     { text: "Finding delicious restaurants...", duration: 3000 },
     { text: "Optimizing your route...", duration: 3000 },
     { text: "Finalizing itinerary...", duration: 2000 },
 ];
 
-export function LoadingScreen() {
+interface LoadingScreenProps {
+    title?: string;
+    steps?: { text: string; duration: number }[];
+}
+
+export function LoadingScreen({ title = "Planning your trip", steps = DEFAULT_STEPS }: LoadingScreenProps) {
     const [currentStep, setCurrentStep] = useState(0);
-    const [progress, setProgress] = useState(0); // Add progress state for smooth animation
+    const [progress, setProgress] = useState(0);
 
     useEffect(() => {
         let timeoutId: NodeJS.Timeout;
+        const stepsToRun = steps;
 
         const runSteps = (index: number) => {
-            if (index >= LOADING_STEPS.length) return;
+            if (index >= stepsToRun.length) return;
 
             // Update progress for the current step
-            setProgress(((index + 1) / LOADING_STEPS.length) * 100);
+            setProgress(((index + 1) / stepsToRun.length) * 100);
 
             timeoutId = setTimeout(() => {
-                if (index < LOADING_STEPS.length - 1) {
+                if (index < stepsToRun.length - 1) {
                     setCurrentStep(index + 1);
                     runSteps(index + 1);
                 }
-            }, LOADING_STEPS[index].duration);
+            }, stepsToRun[index].duration);
         };
 
         // Small delay to ensure starting from 0 visual
         setTimeout(() => runSteps(0), 100);
 
         return () => clearTimeout(timeoutId);
-    }, []);
+    }, [steps]);
 
     return (
         <div className="fixed inset-0 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
@@ -53,10 +59,10 @@ export function LoadingScreen() {
 
             <div className="text-center space-y-2">
                 <h3 className="text-xl font-bold text-orange-600">
-                    Planning your trip
+                    {title}
                 </h3>
                 <p className="text-orange-900/60 w-64">
-                    {LOADING_STEPS[currentStep].text}
+                    {steps[currentStep]?.text || steps[steps.length - 1].text}
                 </p>
             </div>
 

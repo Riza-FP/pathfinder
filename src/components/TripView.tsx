@@ -1,7 +1,7 @@
 "use client";
 
 
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,7 @@ import { BudgetBreakdown, Budget } from "@/components/BudgetBreakdown";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { toast } from "sonner";
-import { ArrowLeft, Save, Download, Calendar, Users, Wallet, Loader2, CloudSun } from "lucide-react";
+import { ArrowLeft, Save, Download, Calendar, Users, Wallet, Loader2, CloudSun, Sparkles, Share2 } from "lucide-react";
 
 export interface TripData {
     destination: string;
@@ -53,9 +53,11 @@ interface TripViewProps {
         booking_url_query: string;
         category: string;
     }>;
+    onRegenerate?: () => void;
+    regenerationCount?: number;
 }
 
-export function TripView({ tripData, itinerary, budgetBreakdown, onSave, isSaved = false, isSaving = false, isPreview = false, onActivityUpdate, weather, hotels }: TripViewProps) {
+export function TripView({ tripData, itinerary, budgetBreakdown, onSave, isSaved = false, isSaving = false, isPreview = false, onActivityUpdate, weather, hotels, onRegenerate, regenerationCount = 0 }: TripViewProps) {
     const router = useRouter();
     const [isAlertOpen, setIsAlertOpen] = useState(false);
 
@@ -71,7 +73,14 @@ export function TripView({ tripData, itinerary, budgetBreakdown, onSave, isSaved
         router.push("/plan");
     };
 
+    const handleShare = () => {
+        navigator.clipboard.writeText(window.location.href)
+            .then(() => toast.success("Link copied to clipboard!"))
+            .catch(() => toast.error("Failed to copy link."));
+    };
+
     const handleExportPDF = () => {
+        // ... (existing export logic)
         const doc = new jsPDF();
         const pageWidth = doc.internal.pageSize.getWidth();
 
@@ -177,6 +186,14 @@ export function TripView({ tripData, itinerary, budgetBreakdown, onSave, isSaved
                     </Button>
 
                     <div className="flex gap-3">
+                        {/* Share Button (Only visible if saved or in preview) */}
+                        {isSaved && (
+                            <Button onClick={handleShare} variant="outline" className="gap-2 border-emerald-200 bg-white hover:bg-emerald-50 text-emerald-700 shadow-sm">
+                                <Share2 className="w-4 h-4" />
+                                Share
+                            </Button>
+                        )}
+
                         <Button onClick={handleExportPDF} variant="outline" className="gap-2 border-emerald-200 bg-white hover:bg-emerald-50 text-emerald-700 shadow-sm">
                             <Download className="w-4 h-4" />
                             PDF
@@ -221,8 +238,9 @@ export function TripView({ tripData, itinerary, budgetBreakdown, onSave, isSaved
                             </span>
                         )}
                     </div>
+
                     {weather && (
-                        <div className="bg-emerald-50/50 p-4 rounded-xl border border-emerald-100 max-w-2xl mx-auto">
+                        <div className="bg-emerald-50/50 p-4 rounded-xl border border-emerald-100 max-w-2xl mx-auto mt-6">
                             <p className="text-emerald-800/80 text-sm italic">
                                 "{weather.summary}"
                             </p>
@@ -234,6 +252,28 @@ export function TripView({ tripData, itinerary, budgetBreakdown, onSave, isSaved
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full items-start">
                     <div className="lg:col-span-2 space-y-8">
                         <ItineraryDisplay days={itinerary} onActivityUpdate={onActivityUpdate} />
+
+                        {/* Bottom Regeneration Action */}
+                        {onRegenerate && isPreview && (
+                            <div className="mt-12 bg-emerald-50/50 border border-emerald-100/50 rounded-3xl p-8 text-center space-y-4">
+                                <div className="space-y-1">
+                                    <h3 className="font-bold text-emerald-950 text-lg">Not completely satisfied?</h3>
+                                    <p className="text-emerald-800/60 text-sm">
+                                        You can regenerate the entire itinerary to get a fresh plan.
+                                    </p>
+                                </div>
+                                <Button
+                                    onClick={onRegenerate}
+                                    variant="outline"
+                                    size="lg"
+                                    disabled={regenerationCount >= 3}
+                                    className="bg-white hover:bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm rounded-full px-8 gap-2 font-bold"
+                                >
+                                    <Sparkles className={`w-4 h-4 ${isSaving ? 'animate-spin' : ''}`} />
+                                    {regenerationCount >= 3 ? "Limit Reached" : `Regenerate Trip (${3 - regenerationCount} left)`}
+                                </Button>
+                            </div>
+                        )}
                     </div>
                     <div className="lg:col-span-1 lg:sticky lg:top-8 space-y-8">
                         {/* Hotels Section */}

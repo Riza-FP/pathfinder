@@ -72,7 +72,7 @@ export function ItineraryDisplay({ days, onActivityUpdate }: ItineraryDisplayPro
                                     color="text-amber-600"
                                     bgColor="bg-amber-50"
                                     icon={<Sun className="w-5 h-5 text-amber-500" />}
-                                    onAction={(action) => onActivityUpdate?.(index, 'morning', action)}
+                                    onAction={onActivityUpdate ? (action) => onActivityUpdate(index, 'morning', action) : undefined}
                                 />
 
                                 {/* Lunch */}
@@ -82,7 +82,7 @@ export function ItineraryDisplay({ days, onActivityUpdate }: ItineraryDisplayPro
                                     color="text-orange-600"
                                     bgColor="bg-orange-50"
                                     icon={<Utensils className="w-5 h-5 text-orange-500" />}
-                                    onAction={(action) => onActivityUpdate?.(index, 'lunch', action)}
+                                    onAction={onActivityUpdate ? (action) => onActivityUpdate(index, 'lunch', action) : undefined}
                                 />
 
                                 {/* Afternoon */}
@@ -92,7 +92,7 @@ export function ItineraryDisplay({ days, onActivityUpdate }: ItineraryDisplayPro
                                     color="text-emerald-600"
                                     bgColor="bg-emerald-50"
                                     icon={<MapPin className="w-5 h-5 text-emerald-500" />}
-                                    onAction={(action) => onActivityUpdate?.(index, 'afternoon', action)}
+                                    onAction={onActivityUpdate ? (action) => onActivityUpdate(index, 'afternoon', action) : undefined}
                                 />
 
                                 {/* Dinner */}
@@ -102,7 +102,7 @@ export function ItineraryDisplay({ days, onActivityUpdate }: ItineraryDisplayPro
                                     color="text-orange-700"
                                     bgColor="bg-orange-50"
                                     icon={<Utensils className="w-5 h-5 text-orange-600" />}
-                                    onAction={(action) => onActivityUpdate?.(index, 'dinner', action)}
+                                    onAction={onActivityUpdate ? (action) => onActivityUpdate(index, 'dinner', action) : undefined}
                                 />
 
                                 {/* Evening */}
@@ -112,7 +112,7 @@ export function ItineraryDisplay({ days, onActivityUpdate }: ItineraryDisplayPro
                                     color="text-indigo-600"
                                     bgColor="bg-indigo-50"
                                     icon={<Moon className="w-5 h-5 text-indigo-500" />}
-                                    onAction={(action) => onActivityUpdate?.(index, 'evening', action)}
+                                    onAction={onActivityUpdate ? (action) => onActivityUpdate(index, 'evening', action) : undefined}
                                 />
                             </div>
                         </CardContent>
