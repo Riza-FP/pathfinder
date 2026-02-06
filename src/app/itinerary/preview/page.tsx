@@ -7,7 +7,7 @@ import { DayPlan } from "@/components/ItineraryDisplay";
 import { Budget } from "@/components/BudgetBreakdown";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
-// import { MapLoadingScreen } from "@/components/MapLoadingScreen";
+import { MapLoadingScreen } from "@/components/MapLoadingScreen";
 import { RegenerateModal } from "@/components/RegenerateModal";
 import { Activity } from "@/components/ItineraryDisplay";
 import { ManualEditModal } from "@/components/ManualEditModal";
@@ -51,6 +51,7 @@ export default function PreviewPage() {
     const [tripData, setTripData] = useState<TripData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [isSignedIn, setIsSignedIn] = useState(false);
 
     // Regeneration State
     const [isRegeneratingTrip, setIsRegeneratingTrip] = useState(false); // For full trip regeneration
@@ -94,7 +95,15 @@ export default function PreviewPage() {
             // No data, redirect to plan
             router.push("/plan");
         }
-        setIsLoading(false);
+
+        // Check authentication
+        const checkAuth = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            setIsSignedIn(!!user);
+            setIsLoading(false);
+        };
+        checkAuth();
+
     }, [router]);
 
     // ... (rest of methods)
@@ -363,7 +372,7 @@ export default function PreviewPage() {
         }
     };
 
-    if (isLoading) return <LoadingScreen />;
+    if (isLoading) return <MapLoadingScreen />;
 
     if (isRegeneratingTrip) return (
         <LoadingScreen
@@ -385,7 +394,7 @@ export default function PreviewPage() {
                 tripData={tripData}
                 itinerary={itinerary}
                 budgetBreakdown={budget}
-                onSave={handleSave}
+                onSave={isSignedIn ? handleSave : undefined}
                 isSaving={isSaving}
                 isPreview={true}
                 onActivityUpdate={handleActivityUpdate}
