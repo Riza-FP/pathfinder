@@ -267,14 +267,7 @@ export default function PreviewPage() {
         }
     };
 
-    const parseCost = (costStr: string | number | undefined | null): number => {
-        if (costStr === null || costStr === undefined) return 0;
-        const str = String(costStr);
-        if (str.toLowerCase().includes("free")) return 0;
-        // Simple parsing: remove non-digits.
-        const digits = str.replace(/\D/g, "");
-        return parseInt(digits) || 0;
-    };
+
 
     const handleManualEditSave = (updatedActivity: Activity) => {
         try {
